@@ -32,8 +32,8 @@ const httpPort = process.env.HTTP_PORT;
 const securePort = process.env.HTTPS_PORT;
 
 const secureServer = Https.createServer({
-	key: fs.readFileSync("server.key"),
-	cert: fs.readFileSync("server.cert"),
+	key: fs.readFileSync(process.env.CERTIFICATE_PATH + "server.key"),
+	cert: fs.readFileSync(process.env.CERTIFICATE_PATH + "server.cert"),
 }, app);
 
 let sessionObj = session({
