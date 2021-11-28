@@ -13,7 +13,7 @@ app/web_modules/
 app/.npm
 
 # IDE config files
-app/.idea/
+.idea/
 
 # Env file, DO NOT PUSH
 app/.env
