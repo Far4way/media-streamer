@@ -189,7 +189,7 @@
 	window.onload = () => {
 		let mediaElem = (document.getElementById("videoElement")) || (document.getElementById("audioElement"));
 		if (mediaElem) mediaElem.load();
-		socket = io(window.location.href.toString());
+		socket = io("https://modulab.tech/video-streamer");
 		socket.on("connect", () => {
 			console.log("Websockets connected");
 			socket.emit("hello", window.location.href.toString().split("/").pop());
