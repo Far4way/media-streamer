@@ -1,0 +1,31 @@
+# Logs
+app/logs
+app/*.log
+
+# Dependency directories
+app/node_modules/
+app/jspm_packages/
+
+# Snowpack dependency directory (https://snowpack.dev/)
+app/web_modules/
+
+# Optional npm cache directory
+app/.npm
+
+# IDE config files
+app/.idea/
+
+# Env file, DO NOT PUSH
+app/.env
+
+# Uploaded Files
+app/private/medias/application/*
+app/private/medias/audio/*
+app/private/medias/image/*
+app/private/medias/text/*
+app/private/medias/video/*
+app/uploaded_files/*
+
+# Security files
+app/**/*.cert
+app/**/*.key
