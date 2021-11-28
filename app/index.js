@@ -318,7 +318,7 @@ app.post("/api/upload", (req, res) => {
 	});
 });
 
-secureServer.listen(securePort, () => {
+secureServer.listen(securePort, process.env.HOST, () => {
 	console.log("Https listening on port " + securePort + " ...");
 });
 
@@ -328,6 +328,6 @@ Http.createServer((req, res) => {
 		"Location": "https://" + process.env.HOST + req.url,
 	});
 	res.end();
-}).listen(httpPort, () => {
+}).listen(httpPort, process.env.HOST, () => {
 	console.log("Http server listening on port " + httpPort + " ...");
 });
