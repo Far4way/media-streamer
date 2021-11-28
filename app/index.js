@@ -69,7 +69,7 @@ app.engine("handlebars", handlebars({
 
 let urlencodedParser = bodyParser.urlencoded({extended: false});
 
-app.use(process.env.EXTRA_DOMAIN, express.static(__dirname + "/public/"));
+app.use("", express.static(__dirname + "/public/"));
 
 app.get("/private/*", (req, res, next) => {
 	if (req.session && req.session.user && req.session.user.loggedIn) {
