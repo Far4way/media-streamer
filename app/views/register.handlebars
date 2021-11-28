@@ -45,7 +45,8 @@
 </script>
 <div class="block p-20 form-container">
 	<h1>Register</h1>
-	<form method="post" action="/register" onsubmit="event.preventDefault(); validateForm()" id="register-form">
+	<form method="post" action="{{extraDomain}}/register" onsubmit="event.preventDefault(); validateForm()"
+		  id="register-form">
 		<div class="form-control">
 			<label for="username">Username (at least 5 characters)</label>
 			<input type="text" name="username" id="username" placeholder="Username" value="">
@@ -67,7 +68,7 @@
 			<p class="error-message text-danger" id="confirmPasswordError"></p>
 		</div>
 		<div class="form-action">
-			<a href="./" class="btn btn-secondary" type="button">Annuler</a>
+			<a href="{{extraDomain}}/" class="btn btn-secondary" type="button">Annuler</a>
 			<button class="btn btn-primary" id="submit-form-button">Valider</button>
 		</div>
 	</form>

@@ -76,7 +76,7 @@
 		<div class="sub-container">
 			<h2>Add media</h2>
 			<p class="error-message text-danger" id="uploadError"></p>
-			<form action="/api/upload" id="upload-media-form" enctype="multipart/form-data" method="post"
+			<form action="{{extraDomain}}/api/upload" id="upload-media-form" enctype="multipart/form-data" method="post"
 				  onsubmit="event.preventDefault(); validateMediaInput()">
 				<div class="form-control">
 					<label for="title">Choose a title for your media</label>
@@ -96,7 +96,7 @@
 		</div>
 		<div class="sub-container">
 			<h2>Create room</h2>
-			<form action="/api/create-room" method="post">
+			<form action="{{extraDomain}}/api/create-room" method="post">
 				<div class="form-control">
 					<label for="category-select">Select a Category</label>
 					<select name="category" id="category-select" onmousedown="switchMediaSelect()"

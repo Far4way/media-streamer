@@ -32,7 +32,8 @@
 </script>
 <div class="block p-20 form-container">
 	<h1>Login</h1>
-	<form method="post" action="/login" onsubmit="event.preventDefault(); validateForm()" id="register-form">
+	<form method="post" action="{{extraDomain}}/login" onsubmit="event.preventDefault(); validateForm()"
+		  id="register-form">
 		<div class="form-control">
 			<label for="email">Email</label>
 			<input type="email" name="email" id="email" placeholder="Email" value="">
@@ -44,7 +45,7 @@
 			<p class="error-message text-danger" id="passwordError"></p>
 		</div>
 		<div class="form-action">
-			<a href="./" class="btn btn-secondary" type="button">Annuler</a>
+			<a href="{{extraDomain}}/" class="btn btn-secondary" type="button">Annuler</a>
 			<button class="btn btn-primary" id="submit-form-button">Valider</button>
 		</div>
 	</form>

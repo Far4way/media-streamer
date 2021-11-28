@@ -69,14 +69,14 @@ app.engine("handlebars", handlebars({
 
 let urlencodedParser = bodyParser.urlencoded({extended: false});
 
-app.use(express.static(__dirname + "/public/video-streamer/"));
+app.use(process.env.EXTRA_DOMAIN, express.static(__dirname + "/public/"));
 
 app.get("/private/*", (req, res, next) => {
 	if (req.session && req.session.user && req.session.user.loggedIn) {
 		app.use("/private", express.static(__dirname + "/private/"));
 		next();
 	} else {
-		res.redirect("/login");
+		res.redirect(process.env.EXTRA_DOMAIN + "/login");
 	}
 });
 
@@ -85,7 +85,7 @@ app.get("/", (req, res) => {
 		if (error) {
 			console.log(error);
 			res.status(500);
-			res.redirect("/");
+			res.redirect(process.env.EXTRA_DOMAIN + "/");
 		}
 		let medias = {
 			formats: [],
@@ -106,21 +106,32 @@ app.get("/", (req, res) => {
 			}
 			return 0;
 		});
-		res.render("main", {layout: "index", user: req.session.user, medias: medias});
+		res.render("main", {
+			layout: "index",
+			user: req.session.user,
+			medias: medias,
+			extraDomain: process.env.EXTRA_DOMAIN,
+		});
 	});
 });
 
 app.get("/register", (req, res) => {
-	res.render("register", {layout: "index", user: req.session.user});
+	res.render("register", {
+		layout: "index", user: req.session.user,
+		extraDomain: process.env.EXTRA_DOMAIN,
+	});
 });
 
 app.get("/login", (req, res) => {
-	res.render("login", {layout: "index", user: req.session.user});
+	res.render("login", {
+		layout: "index", user: req.session.user,
+		extraDomain: process.env.EXTRA_DOMAIN,
+	});
 });
 
 app.get("/logout", (req, res) => {
 	req.session.destroy();
-	res.redirect("/");
+	res.redirect(process.env.EXTRA_DOMAIN + "/");
 });
 
 app.get("/room/:roomId", (req, res) => {
@@ -129,12 +140,12 @@ app.get("/room/:roomId", (req, res) => {
 	if (url.match(regex)) {
 		let roomId = req.originalUrl.split("/")[2];
 		if (!roomId) {
-			res.redirect("/");
+			res.redirect(process.env.EXTRA_DOMAIN + "/");
 			return;
 		}
 		Room.readOne(roomId).then((room) => {
 			if (!room) {
-				res.redirect("/");
+				res.redirect(process.env.EXTRA_DOMAIN + "/");
 				return;
 			}
 			Media.readOne(room.media).then((media) => {
@@ -143,11 +154,12 @@ app.get("/room/:roomId", (req, res) => {
 					user: req.session.user,
 					room: {id: room.id},
 					media: {title: media.title, type: media.type, subtype: media.subtype, path: media.path},
+					extraDomain: process.env.EXTRA_DOMAIN,
 				});
 			});
 		});
 	} else
-		res.redirect("/");
+		res.redirect(process.env.EXTRA_DOMAIN + "/");
 });
 
 app.post("/login", urlencodedParser, async(req, res) => {
@@ -168,13 +180,13 @@ app.post("/login", urlencodedParser, async(req, res) => {
 				} else {
 					req.session.user = {loggedIn: true, username: user.username};
 					console.log("User " + user.username + " connected.");
-					res.redirect("/");
+					res.redirect(process.env.EXTRA_DOMAIN + "/");
 				}
 			});
 		}
 		if (!valid) {
 			let params = new URLSearchParams(data).toString();
-			res.redirect("/login?" + params);
+			res.redirect(process.env.EXTRA_DOMAIN + "/login?" + params);
 		}
 	}).catch((err) => {
 		console.log(err);
@@ -202,20 +214,20 @@ app.post("/register", urlencodedParser, async(req, res) => {
 	if (valid) {
 		let salt = bcrypt.genSaltSync(10);
 		if (!salt) {
-			res.redirect("/register?" + params);
+			res.redirect(process.env.EXTRA_DOMAIN + "/register?" + params);
 			return;
 		}
 		let hash = bcrypt.hashSync(password, salt).toString();
 		if (!hash) {
-			res.redirect("/register?" + params);
+			res.redirect(process.env.EXTRA_DOMAIN + "/register?" + params);
 			return;
 		}
 		User.createOne({email: email, password: hash, username: username}, (err) => {
 			if (err) console.log(err);
-			res.redirect("/login");
+			res.redirect(process.env.EXTRA_DOMAIN + "/login");
 		});
 	} else {
-		res.redirect("/register?" + params);
+		res.redirect(process.env.EXTRA_DOMAIN + "/register?" + params);
 	}
 });
 
@@ -224,18 +236,18 @@ app.post("/api/create-room", urlencodedParser, (req, res) => {
 	if (req.session && req.session.user && req.session.user.loggedIn) {
 		User.readOneByUsername(req.session.user.username).then((user) => {
 			if (!user) {
-				res.redirect("/");
+				res.redirect(process.env.EXTRA_DOMAIN + "/");
 			}
 			Room.createOne(user.id, mediaId).then((roomId) => {
 				if (roomId) {
 					req.session.chief = [];
 					req.session.chief.push(roomId);
 					roomsInfos.set(roomId, {users: new Set(), chief: user.username});
-					res.redirect("/room/" + roomId);
+					res.redirect(process.env.EXTRA_DOMAIN + "/room/" + roomId);
 				}
 			}).catch((err) => {
 				console.log(err);
-				res.redirect("/");
+				res.redirect(process.env.EXTRA_DOMAIN + "/");
 			});
 		});
 	}
@@ -276,21 +288,21 @@ app.post("/api/upload", (req, res) => {
 		let newPath = __dirname + "/private/medias/" + type + "/" + fields["title"] + "." + extension;
 		if (!valid) {
 			let params = new URLSearchParams(data).toString();
-			res.redirect("/?" + params);
+			res.redirect(process.env.EXTRA_DOMAIN + "/?" + params);
 		} else {
 			try {
 				fs.rename(oldPath, newPath, (err) => {
 					if (err) {
 						console.log(err);
 						res.status(500);
-						res.redirect("/");
+						res.redirect(process.env.EXTRA_DOMAIN + "/");
 						return;
 					}
 					User.readOneByUsername(req.session.user.username).then((user) => {
 						if (!user) {
 							fs.unlinkSync(newPath);
 							res.status(500);
-							res.redirect("/");
+							res.redirect(process.env.EXTRA_DOMAIN + "/");
 							return;
 						}
 						Media.createOne({
@@ -304,12 +316,12 @@ app.post("/api/upload", (req, res) => {
 								console.log(error);
 								fs.unlinkSync(newPath);
 								res.status(500);
-								res.redirect("/");
+								res.redirect(process.env.EXTRA_DOMAIN + "/");
 								return;
 							}
 							console.log("Media created by user " + user.username);
 							res.status(200);
-							res.redirect("/");
+							res.redirect(process.env.EXTRA_DOMAIN + "/");
 						});
 					});
 				});

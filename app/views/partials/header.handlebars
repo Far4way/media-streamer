@@ -1,17 +1,17 @@
 <header>
-	<a href="./" class="logo">Video Streamer </a>
+	<a href="{{extraDomain}}/" class="logo">Video Streamer </a>
 	<div class="navbar">
 		<ul class="header-menu">
 			{{#if user.loggedIn}}
 				<li>
-					<a href="./logout">Déconnexion</a>
+					<a href="{{extraDomain}}/logout">Déconnexion</a>
 				</li>
 			{{else}}
 				<li>
-					<a href="./register">Inscription</a>
+					<a href="{{extraDomain}}/register">Inscription</a>
 				</li>
 				<li>
-					<a href="./login">Connexion</a>
+					<a href="{{extraDomain}}/login">Connexion</a>
 				</li>
 			{{/if}}
 		</ul>
