@@ -284,12 +284,14 @@ app.post("/api/upload", (req, res) => {
 						console.log(err);
 						res.status(500);
 						res.redirect("/");
+						return;
 					}
 					User.readOneByUsername(req.session.user.username).then((user) => {
 						if (!user) {
 							fs.unlinkSync(newPath);
 							res.status(500);
 							res.redirect("/");
+							return;
 						}
 						Media.createOne({
 							path: "/private/medias/" + type + "/" + fields["title"] + "." + extension,
@@ -303,6 +305,7 @@ app.post("/api/upload", (req, res) => {
 								fs.unlinkSync(newPath);
 								res.status(500);
 								res.redirect("/");
+								return;
 							}
 							console.log("Media created by user " + user.username);
 							res.status(200);
