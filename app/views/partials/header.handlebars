@@ -1,0 +1,22 @@
+<header>
+	<a href="/" class="logo">Video Streamer </a>
+	<div class="navbar">
+		<ul class="header-menu">
+			{{#if user.loggedIn}}
+				<li>
+					<a href="../logout">Déconnexion</a>
+				</li>
+			{{else}}
+				<li>
+					<a href="../register">Inscription</a>
+				</li>
+				<li>
+					<a href="../login">Connexion</a>
+				</li>
+			{{/if}}
+		</ul>
+		{{#if user.loggedIn}}
+			<p>Bonjour {{user.username}}</p>
+		{{/if}}
+	</div>
+</header>

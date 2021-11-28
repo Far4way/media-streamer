@@ -1,0 +1,366 @@
+<script src="https://cdn.socket.io/4.4.0/socket.io.min.js"
+		integrity="sha384-1fOn6VtTq3PWwfsOrk45LnYcGosJwzMHv+Xh/Jx5303FVOXzEnw0EpLv30mtjmlj"
+		crossorigin="anonymous"></script>
+<script>
+	const CSS_COLOR_NAMES = [
+		"AliceBlue",
+		"AntiqueWhite",
+		"Aqua",
+		"Aquamarine",
+		"Azure",
+		"Beige",
+		"Bisque",
+		"Black",
+		"BlanchedAlmond",
+		"Blue",
+		"BlueViolet",
+		"Brown",
+		"BurlyWood",
+		"CadetBlue",
+		"Chartreuse",
+		"Chocolate",
+		"Coral",
+		"CornflowerBlue",
+		"Cornsilk",
+		"Crimson",
+		"Cyan",
+		"DarkBlue",
+		"DarkCyan",
+		"DarkGoldenRod",
+		"DarkGray",
+		"DarkGrey",
+		"DarkGreen",
+		"DarkKhaki",
+		"DarkMagenta",
+		"DarkOliveGreen",
+		"DarkOrange",
+		"DarkOrchid",
+		"DarkRed",
+		"DarkSalmon",
+		"DarkSeaGreen",
+		"DarkSlateBlue",
+		"DarkSlateGray",
+		"DarkSlateGrey",
+		"DarkTurquoise",
+		"DarkViolet",
+		"DeepPink",
+		"DeepSkyBlue",
+		"DimGray",
+		"DimGrey",
+		"DodgerBlue",
+		"FireBrick",
+		"FloralWhite",
+		"ForestGreen",
+		"Fuchsia",
+		"Gainsboro",
+		"GhostWhite",
+		"Gold",
+		"GoldenRod",
+		"Gray",
+		"Grey",
+		"Green",
+		"GreenYellow",
+		"HoneyDew",
+		"HotPink",
+		"IndianRed",
+		"Indigo",
+		"Ivory",
+		"Khaki",
+		"Lavender",
+		"LavenderBlush",
+		"LawnGreen",
+		"LemonChiffon",
+		"LightBlue",
+		"LightCoral",
+		"LightCyan",
+		"LightGoldenRodYellow",
+		"LightGray",
+		"LightGrey",
+		"LightGreen",
+		"LightPink",
+		"LightSalmon",
+		"LightSeaGreen",
+		"LightSkyBlue",
+		"LightSlateGray",
+		"LightSlateGrey",
+		"LightSteelBlue",
+		"LightYellow",
+		"Lime",
+		"LimeGreen",
+		"Linen",
+		"Magenta",
+		"Maroon",
+		"MediumAquaMarine",
+		"MediumBlue",
+		"MediumOrchid",
+		"MediumPurple",
+		"MediumSeaGreen",
+		"MediumSlateBlue",
+		"MediumSpringGreen",
+		"MediumTurquoise",
+		"MediumVioletRed",
+		"MidnightBlue",
+		"MintCream",
+		"MistyRose",
+		"Moccasin",
+		"NavajoWhite",
+		"Navy",
+		"OldLace",
+		"Olive",
+		"OliveDrab",
+		"Orange",
+		"OrangeRed",
+		"Orchid",
+		"PaleGoldenRod",
+		"PaleGreen",
+		"PaleTurquoise",
+		"PaleVioletRed",
+		"PapayaWhip",
+		"PeachPuff",
+		"Peru",
+		"Pink",
+		"Plum",
+		"PowderBlue",
+		"Purple",
+		"RebeccaPurple",
+		"Red",
+		"RosyBrown",
+		"RoyalBlue",
+		"SaddleBrown",
+		"Salmon",
+		"SandyBrown",
+		"SeaGreen",
+		"Sienna",
+		"Silver",
+		"SkyBlue",
+		"SlateBlue",
+		"SlateGray",
+		"SlateGrey",
+		"Snow",
+		"SpringGreen",
+		"SteelBlue",
+		"Tan",
+		"Teal",
+		"Thistle",
+		"Tomato",
+		"Turquoise",
+		"Violet",
+		"Wheat",
+		"White",
+		"WhiteSmoke",
+		"Yellow",
+		"YellowGreen",
+	];
+
+	function auto_grow(element) {
+		element.style.height = "10px";
+		element.style.height = (element.scrollHeight) + "px";
+	}
+
+	function textareaKeypress(eventObj, elem) {
+		if (eventObj.keyCode === 13 && !eventObj.shiftKey) {
+			eventObj.preventDefault();
+			sendChatMessage(elem);
+		}
+	}
+
+	String.prototype.hashCode = function() {
+		let hash = 0, i, chr;
+		if (this.length === 0) return hash;
+		for (i = 0; i < this.length; i++) {
+			chr = this.charCodeAt(i);
+			hash = ((hash << 5) - hash) + chr;
+			hash |= 0; // Convert to 32bit integer
+		}
+		return hash;
+	};
+
+	let socket;
+
+	function sendChatMessage(elem) {
+		let message = document.getElementById("inputChatMessage").value;
+		if (socket.connected) {
+			socket.emit("chatMessage", window.location.href.toString().split("/").pop(), message);
+			document.getElementById("inputChatMessage").value = "";
+			auto_grow(elem);
+		}
+	}
+
+	window.onload = () => {
+		let mediaElem = (document.getElementById("videoElement")) || (document.getElementById("audioElement"));
+		if (mediaElem) mediaElem.load();
+		socket = io();
+		socket.on("connect", () => {
+			console.log("Websockets connected");
+			socket.emit("hello", window.location.href.toString().split("/").pop());
+			if (mediaElem instanceof HTMLMediaElement) {
+				socket.emit("sync", window.location.href.toString().split("/").pop(), mediaElem.currentTime, mediaElem.paused);
+				setInterval(() => {
+					if (!mediaElem.paused)
+						socket.emit("sync", window.location.href.toString().split("/").pop(), mediaElem.currentTime, mediaElem.paused);
+					else
+						socket.emit("pause", window.location.href.toString().split("/").pop(), mediaElem.currentTime);
+				}, 1000);
+				mediaElem.addEventListener("pause", () => {
+					socket.emit("pause", window.location.href.toString().split("/").pop(), mediaElem.currentTime);
+				});
+				mediaElem.addEventListener("play", () => {
+					socket.emit("play", window.location.href.toString().split("/").pop(), mediaElem.currentTime);
+				});
+				mediaElem.addEventListener("seeked", () => {
+					socket.emit("seek", window.location.href.toString().split("/").pop(), mediaElem.currentTime);
+				});
+			}
+		});
+		socket.on("redirect", (url) => {
+			window.location.href = url;
+		});
+		socket.on("roomInfos", (roomInfo) => {
+			let usersList = document.getElementById("usersList");
+			let chief = roomInfo["chief"];
+			let users = roomInfo["users"];
+			users.splice(users.indexOf(chief), 1);
+			users = users.sort((a, b) => {
+				return a.toLowerCase().localeCompare(b.toLowerCase());
+			});
+			usersList.innerHTML = "";
+			let liChief = document.createElement("li");
+			liChief.innerText = "👑 " + chief;
+			liChief.style.color = CSS_COLOR_NAMES[Math.abs(chief.hashCode()) % CSS_COLOR_NAMES.length];
+			liChief.classList.add("chiefUser");
+			usersList.appendChild(liChief);
+			users.forEach((username) => {
+				let liUser = document.createElement("li");
+				liUser.innerText = username;
+				liUser.style.color = CSS_COLOR_NAMES[Math.abs(username.hashCode()) % CSS_COLOR_NAMES.length];
+				liUser.classList.add("commonUser");
+				usersList.appendChild(liUser);
+			});
+		});
+		socket.on("sync", (syncValue) => {
+			if (mediaElem instanceof HTMLMediaElement) {
+				let currentTime = mediaElem.currentTime;
+				if (Math.abs(currentTime - syncValue) >= 1)
+					mediaElem.currentTime = syncValue;
+			}
+		});
+		socket.on("seek", (syncValue) => {
+			if (mediaElem instanceof HTMLMediaElement) {
+				let currentTime = mediaElem.currentTime;
+				if (Math.abs(currentTime - syncValue) >= 1)
+					mediaElem.currentTime = syncValue;
+			}
+		});
+		socket.on("play", (syncValue) => {
+			if (mediaElem instanceof HTMLMediaElement) {
+				let currentTime = mediaElem.currentTime;
+				if (Math.abs(currentTime - syncValue) >= 1)
+					mediaElem.currentTime = syncValue;
+				mediaElem.play();
+			}
+		});
+		socket.on("pause", (syncValue) => {
+			if (mediaElem instanceof HTMLMediaElement) {
+				let currentTime = mediaElem.currentTime;
+				if (Math.abs(currentTime - syncValue) >= 1)
+					mediaElem.currentTime = syncValue;
+				mediaElem.pause();
+			}
+		});
+		socket.on("chatMessage", ([username, message]) => {
+			const userColor = CSS_COLOR_NAMES[Math.abs(username.hashCode()) % CSS_COLOR_NAMES.length];
+			let chatBox = document.getElementById("chatMessagesContainer");
+			let chatMessage = document.createElement("div");
+			chatMessage.classList.add("chatMessage");
+			let messageParagraph = document.createElement("p");
+			let usernameSpan = document.createElement("span");
+			usernameSpan.classList.add("usernameSpan");
+			usernameSpan.style.color = userColor;
+			usernameSpan.innerText = username;
+			let separatorSpan = document.createElement("span");
+			separatorSpan.innerText = " : ";
+			let messageSpan = document.createElement("span");
+			messageSpan.classList.add("messageSpan");
+			messageSpan.innerText = message;
+			messageParagraph.appendChild(usernameSpan);
+			messageParagraph.appendChild(separatorSpan);
+			messageParagraph.appendChild(messageSpan);
+			chatMessage.appendChild(messageParagraph);
+			chatBox.appendChild(chatMessage);
+		});
+		socket.on("connect_error", (error) => {
+			console.log(error);
+		});
+		socket.on("disconnect", () => {
+			console.log("disconnected");
+			location.reload();
+		});
+	};
+
+</script>
+<div class="container sideToSide">
+	{{#if user.loggedIn}}
+		<div class="focusMe"
+			 style="z-index: 100; position: fixed;top:0;left:0; height: 100vh;width: 100vw;background-color: rgba(255, 255, 255, 0.5);backdrop-filter: blur(10px); display: flex;align-items: center;justify-content: center;"
+			 onclick="this.remove()">
+			<h1 style="text-align: center;font-size: 8vw">Click on me please!</h1>
+		</div>
+		<div class="content" style="z-index: 1">
+
+			{{#if room.id}}
+				<h1 style="align-self: center">{{media.title}}</h1>
+				<div class="mediaContainer">
+					{{#ifCond media.type "video"}}
+						<video controls preload="none" id="videoElement">
+							<source src="..{{media.path}}"
+									type="{{media.type}}/{{media.subtype}}">
+							Sorry, your browser doesn't support embedded medias.
+						</video>
+					{{/ifCond}}
+
+					{{#ifCond media.type "audio"}}
+						<audio controls preload="auto" id="audioElement">
+							<source src="..{{media.path}}"
+									type="{{media.type}}/{{media.subtype}}">
+							Sorry, your browser doesn't support embedded medias.
+						</audio>
+					{{/ifCond}}
+
+					{{#ifCond media.type "image"}}
+						<img src="..{{media.path}}" alt="Sorry, your browser doesn't support embedded medias."/>
+					{{/ifCond}}
+
+					{{#ifCond media.type "application"}}
+						{{#ifCond media.subtype "pdf"}}
+							<iframe src="..{{media.path}}"
+									style="width:calc(min(90vw,1200px)); height:calc(max(80vh,600px));"></iframe>
+						{{/ifCond}}
+					{{/ifCond}}
+				</div>
+			{{else}}
+				<h1>Sorry, no active room match this id</h1>
+			{{/if}}
+		</div>
+		<div class="socialContent" style="z-index: 1;">
+			<div class="usersListContainer">
+				<h3>Connected users :</h3>
+				<ul class="usersList" id="usersList">
+
+				</ul>
+			</div>
+			<div class="separator separator-gray"></div>
+			<div class="chatBox">
+				<div class="chatMessagesContainer" id="chatMessagesContainer"></div>
+				<div class="separator separator-gray"></div>
+				<form class="chatForm" onsubmit="event.preventDefault();sendChatMessage(this.firstChild);">
+					<textarea name="chatMessage" id="inputChatMessage" oninput="auto_grow(this)"
+							  onkeypress="textareaKeypress(event,this)"></textarea>
+					<button type="submit">⇨</button>
+
+				</form>
+			</div>
+		</div>
+	{{else}}
+		<h1>Please login or register to see the media.</h1>
+	{{/if}}
+</div>

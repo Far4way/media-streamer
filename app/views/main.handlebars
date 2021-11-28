@@ -1,0 +1,122 @@
+<script>
+	let subSelects = {};
+
+	function decodeHTMLEntities(str) {
+		let element = document.createElement("p");
+		if (str && typeof str === "string") {
+			// strip script/html tags
+			str = str.replace(/<script[^>]*>([\S\s]*?)<\/script>/gmi, "");
+			str = str.replace(/<\/?\w(?:[^"'>]|"[^"]*"|'[^']*')*>/gmi, "");
+			element.innerHTML = str;
+			str = element.textContent;
+			element.textContent = "";
+		}
+		return str;
+	}
+
+	window.onload = function() {
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		document.getElementById("titleError").innerText = urlParams.get("titleError");
+		document.getElementById("fileError").innerText = urlParams.get("fileError");
+		document.getElementById("uploadError").innerText = urlParams.get("uploadError");
+
+		{{#each medias.formats}}
+			subSelects["{{this}}"] = document.createElement("select");
+			subSelects["{{this}}"].id = "media-select";
+			subSelects["{{this}}"].name = "media";
+		{{/each}}
+
+		let option;
+		{{#each medias.medias as | media |}}
+			option = document.createElement("option");
+			option.value = "{{media.id}}";
+			option.text = decodeHTMLEntities("{{media.title}}");
+			subSelects["{{media.type}}"].add(option);
+		{{/each}}
+		let currSelect = document.getElementById("media-select");
+		if (currSelect) {
+			currSelect.replaceWith(subSelects[document.getElementById("category-select").value.toString()]);
+		} else {
+			document.getElementById("sub-select-container").appendChild(subSelects[document.getElementById("category-select").value.toString()]);
+		}
+	};
+
+	function switchMediaSelect() {
+		let currSelect = document.getElementById("media-select");
+		if (currSelect) {
+			currSelect.replaceWith(subSelects[document.getElementById("category-select").value.toString()]);
+		} else {
+			document.getElementById("sub-select-container").appendChild(subSelects[document.getElementById("category-select").value.toString()]);
+		}
+	}
+
+	function validateMediaInput() {
+		let titleInput = document.getElementById("title");
+		let fileInput = document.getElementById("file");
+		let valid = true;
+		if (!titleInput.value || titleInput.value == "") {
+			document.getElementById("titleError").innerText = "A title is required";
+			valid = false;
+		} else document.getElementById("titleError").innerText = "";
+		if (!fileInput.value || fileInput.value == "") {
+			document.getElementById("fileError").innerText = "A file is required";
+			valid = false;
+		} else document.getElementById("fileError").innerText = "";
+
+		if (valid) {
+			console.log("submitting form");
+			document.getElementById("upload-media-form").submit();
+			console.log("submitted");
+		}
+	}
+</script>
+<div class="content">
+	{{#if user.loggedIn}}
+		<div class="sub-container">
+			<h2>Add media</h2>
+			<p class="error-message text-danger" id="uploadError"></p>
+			<form action="/api/upload" id="upload-media-form" enctype="multipart/form-data" method="post"
+				  onsubmit="event.preventDefault(); validateMediaInput()">
+				<div class="form-control">
+					<label for="title">Choose a title for your media</label>
+					<input type="text" name="title" accept="image/*,video/*,audio/*" id="title"/>
+					<p class="error-message text-danger" id="titleError"></p>
+				</div>
+				<div class="form-control">
+					<label for="file">Select the file to upload</label>
+					<input type="file" name="uploadedFile" multiple="multiple" id="file"/>
+					<p class="error-message text-danger" id="fileError"></p>
+				</div>
+				<div class="form-action">
+					<button type="submit" class="btn btn-primary" id="submit-upload-media" value="Upload">Upload
+					</button>
+				</div>
+			</form>
+		</div>
+		<div class="sub-container">
+			<h2>Create room</h2>
+			<form action="/api/create-room" method="post">
+				<div class="form-control">
+					<label for="category-select">Select a Category</label>
+					<select name="category" id="category-select" onmousedown="switchMediaSelect()"
+							onchange="switchMediaSelect()">
+						{{#each medias.formats}}
+							<option value="{{this}}">{{this}}</option>
+						{{/each}}
+					</select>
+					<div id="sub-select-container" class="form-control">
+						<label for="media-select">Select a Media to create a room</label>
+					</div>
+
+				</div>
+				<div class="form-action">
+					<button type="submit" class="btn btn-primary" id="submit-create-room" value="Upload">Create
+					</button>
+				</div>
+			</form>
+		</div>
+	{{else}}
+		<h1>Please login or register to upload a file or create a room.<br>{{user.username}}</h1>
+	{{/if}}
+</div>

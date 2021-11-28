@@ -1,0 +1,51 @@
+<script>
+	window.onload = function() {
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		document.getElementById("emailError").innerText = urlParams.get("emailError");
+		document.getElementById("passwordError").innerText = urlParams.get("passwordError");
+
+		document.getElementById("email").value = urlParams.get("email");
+	};
+
+	function validateForm() {
+		let emailInput = document.getElementById("email");
+		let passwordInput = document.getElementById("password");
+
+		const emailReg = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+		let valid = true;
+		if (!emailInput.value.match(emailReg)) {
+			document.getElementById("emailError").innerText = "The email isn't valid";
+			valid = false;
+		} else document.getElementById("emailError").innerText = "";
+		if (passwordInput.value === "" || passwordInput.value.length < 8) {
+			document.getElementById("passwordError").innerText = "A password of at least 8 characters is required";
+			valid = false;
+		} else document.getElementById("passwordError").innerText = "";
+
+		if (valid) {
+			console.log("submitting form");
+			document.getElementById("register-form").submit();
+			console.log("submitted");
+		}
+	}
+</script>
+<div class="block p-20 form-container">
+	<h1>Login</h1>
+	<form method="post" action="/login" onsubmit="event.preventDefault(); validateForm()" id="register-form">
+		<div class="form-control">
+			<label for="email">Email</label>
+			<input type="email" name="email" id="email" placeholder="Email" value="">
+			<p class="error-message text-danger" id="emailError"></p>
+		</div>
+		<div class="form-control">
+			<label for="password">Password</label>
+			<input type="password" name="password" placeholder="Password" id="password">
+			<p class="error-message text-danger" id="passwordError"></p>
+		</div>
+		<div class="form-action">
+			<a href="/" class="btn btn-secondary" type="button">Annuler</a>
+			<button class="btn btn-primary" id="submit-form-button">Valider</button>
+		</div>
+	</form>
+</div>

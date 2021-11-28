@@ -1,0 +1,74 @@
+<script>
+	window.onload = function() {
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		document.getElementById("usernameError").innerText = urlParams.get("usernameError");
+		document.getElementById("emailError").innerText = urlParams.get("emailError");
+		document.getElementById("passwordError").innerText = urlParams.get("passwordError");
+		document.getElementById("confirmPasswordError").innerText = urlParams.get("confirmPasswordError");
+
+		document.getElementById("username").value = urlParams.get("username");
+		document.getElementById("email").value = urlParams.get("email");
+	};
+
+	function validateForm() {
+		let usernameInput = document.getElementById("username");
+		let emailInput = document.getElementById("email");
+		let passwordInput = document.getElementById("password");
+		let confirmPasswordInput = document.getElementById("confirmpassword");
+
+		const emailReg = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+		let valid = true;
+		if (usernameInput.value === "" || usernameInput.value.length < 5) {
+			document.getElementById("usernameError").innerText = "An username of at least 5 characters is required";
+			valid = false;
+		} else document.getElementById("usernameError").innerText = "";
+
+		if (!emailInput.value.match(emailReg)) {
+			document.getElementById("emailError").innerText = "The email isn't valid";
+			valid = false;
+		} else document.getElementById("emailError").innerText = "";
+		if (passwordInput.value === "" || passwordInput.value.length < 8) {
+			document.getElementById("passwordError").innerText = "A password of at least 8 characters is required";
+			valid = false;
+		} else document.getElementById("passwordError").innerText = "";
+		if (confirmPasswordInput.value === "" || confirmPasswordInput.value !== passwordInput.value) {
+			document.getElementById("confirmPasswordError").innerText = "The passwords do not match";
+			valid = false;
+		} else document.getElementById("confirmPasswordError").innerText = "";
+		if (valid) {
+			console.log("submitting form");
+			document.getElementById("register-form").submit();
+			console.log("submitted");
+		}
+	}
+</script>
+<div class="block p-20 form-container">
+	<h1>Register</h1>
+	<form method="post" action="/register" onsubmit="event.preventDefault(); validateForm()" id="register-form">
+		<div class="form-control">
+			<label for="username">Username (at least 5 characters)</label>
+			<input type="text" name="username" id="username" placeholder="Username" value="">
+			<p class="error-message text-danger" id="usernameError"></p>
+		</div>
+		<div class="form-control">
+			<label for="email">Email</label>
+			<input type="email" name="email" id="email" placeholder="Valid Email" value="">
+			<p class="error-message text-danger" id="emailError"></p>
+		</div>
+		<div class="form-control">
+			<label for="password">Password (at least 8 characters)</label>
+			<input type="password" name="password" placeholder="Password" id="password">
+			<p class="error-message text-danger" id="passwordError"></p>
+		</div>
+		<div class="form-control">
+			<label for="confirmpassword">Confirm Password</label>
+			<input type="password" name="confirmpassword" placeholder="Password confirmation" id="confirmpassword">
+			<p class="error-message text-danger" id="confirmPasswordError"></p>
+		</div>
+		<div class="form-action">
+			<a href="/" class="btn btn-secondary" type="button">Annuler</a>
+			<button class="btn btn-primary" id="submit-form-button">Valider</button>
+		</div>
+	</form>
+</div>

@@ -1,0 +1,32 @@
+{
+  "video": [
+    "ogg",
+    "mp4",
+    "webm"
+  ],
+  "audio": [
+    "mpeg",
+    "wav",
+    "flac",
+    "ogg",
+    "midi",
+    "aac",
+    "aacp",
+    "webm",
+    "mp4"
+  ],
+  "image": [
+    "jpeg",
+    "bmp",
+    "png",
+    "webp",
+    "gif",
+    "tiff"
+  ],
+  "text": [
+    "plain"
+  ],
+  "application": [
+    "pdf"
+  ]
+}
