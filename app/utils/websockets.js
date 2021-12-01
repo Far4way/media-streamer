@@ -10,7 +10,7 @@ let io;
 
 export function socketConnection(server, session, sessionStore, roomsInfos) {
 	
-	io = new Server(server, { /* options */});
+	io = new Server(server, { secure:true});
 	io.use(sharedSession(session, cookieparser(), {
 		autoSave: true,
 	}));
@@ -19,9 +19,8 @@ export function socketConnection(server, session, sessionStore, roomsInfos) {
 		console.log("Socket " + socket.id + " connected.");
 		let url = (socket.request.headers.referer);
 		if (!socket.handshake.session.user) return;
-		let host = process.env.HOST;
-		let regex = "https:\\/\\/" + host + "(:[0-9]{2,5})?\\/room\\/([a-zA-Z0-9]{64})";
-		
+		let host = process.env.PRODUCTION_HOST;
+		let regex = "https:\\/\\/" + host + "(:[0-9]{2,5})?"+"("+process.env.EXTRA_DOMAIN+")?"+"\\/room\\/([a-zA-Z0-9]{64})";
 		function isChief(socket, roomId) {
 			return new Promise((resolve, reject) => {
 				sessionStore.get(socketSession.get(socket.id), (error, sess) => {
